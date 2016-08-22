@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<style type="text/css">
+			*{
+				margin: 0;
+				padding: 0;
+			}
+		</style>
+	</head>
+	<body>
+	</body>
+	<script src="js/jquery-1.10.2.min.js" type="text/javascript" charset="utf-8"></script>
+	<script src="js/three.js" type="text/javascript" charset="utf-8"></script>
+	<script type="text/javascript">
+		var scene=new THREE.Scene();//创建场景
+		var camera=new THREE.PerspectiveCamera()//创建相机
+		var render=new THREE.WebGLRenderer()//创建画布（canvas）
+		render.setSize(window.innerWidth,window.innerHeight);
+		document.body.appendChild(render.domElement);
+		$("canvas").css({
+			"display":"block"
+		})
+		
+		obj_init();
+		render_init();
+		
+		function obj_init(){//创建场景，并且把场景通过camera拍摄下来
+			var geometry=new THREE.Geometry();
+			var material = new THREE.LineBasicMaterial( { vertexColors: true } );//使用了顶点颜色vertexColors: THREE.VertexColors，就是线条的颜色会根据顶点来计算
+			
+			var color1 = new THREE.Color( 0x444444 );
+			var color2 = new THREE.Color(0xFF0000);
+			
+			// 线的材质可以由2点的颜色决定
+            var p1 = new THREE.Vector3( -100, 100, -100);
+            var p2 = new THREE.Vector3( -100, 0, -100);
+            geometry.vertices.push(p1);
+            geometry.vertices.push(p2);
+            geometry.colors.push( color1, color2 );
+            for(var i=0;i<20;i++){
+            	line = new THREE.Line( geometry, material, THREE.LinePieces );
+            	line.position.z = ( i * 50 ) - 1000;
+            	scene.add(line);
+   				
+   				line = new THREE.Line( geometry, material, THREE.LinePieces );
+		        line.position.x = ( i * 50 )-100;
+		        line.rotation.y = 90 * Math.PI / 180;
+		        line.position.z = ( i * 50 ) - 1000;
+		        scene.add( line );
+            }
+		}
+		
+		function render_init(){//渲染函数
+			scene.position.x =scene.position.x +1;
+			render.render(scene,camera);
+			window.requestAnimationFrame(render_init);
+		}
+	</script>
+</html>

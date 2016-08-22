@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<style type="text/css">
+			*{
+				margin: 0;
+				padding: 0;
+			}
+		</style>
+	</head>
+	<body>
+	</body>
+	<script src="js/jquery-1.10.2.min.js" type="text/javascript" charset="utf-8"></script>
+	<script src="js/three.js" type="text/javascript" charset="utf-8"></script>
+	<script type="text/javascript">
+		var scene=new THREE.Scene();
+		var camera=new THREE.PerspectiveCamera(75, $(window).width()/$(window).height(), 0.1, 1000);
+		var render= new THREE.WebGLRenderer();
+			render.setSize($(window).width(),$(window).height());
+			document.body.appendChild(render.domElement);
+			$("canvas").css({
+				"display":"block"
+			})
+			
+			camera.position.z =20//好像是控制物体和眼睛之间的距离
+
+			init_obj();
+			render_init();
+		
+		function init_obj(){
+			
+			//点由THREE.Vector3表示，Threejs中没有提供单独画点的函数，它必须被放到一个THREE.Geometry形状中，这个结构中包含一个数组vertices，这个vertices就是存放无数的点（THREE.Vector3）的数组
+			var geometry = new THREE.Geometry();//创建几何体，点是存在几何体里面的
+			var material = new THREE.LineBasicMaterial( { vertexColors: true } );
+			var color1 = new THREE.Color( 0x444444 );
+			var color2 = new THREE.Color(0xFF0000);
+			
+			// 线的材质可以由2点的颜色决定
+            var p1 = new THREE.Vector3( -100, 100, -100);
+            var p2 = new THREE.Vector3(  100, 0, -10);
+            geometry.vertices.push(p1);
+            geometry.vertices.push(p2);
+            geometry.colors.push( color1, color2 );
+            
+            var line = new THREE.Line( geometry, material, THREE.LinePieces );
+            scene.add(line);
+		}
+		
+		function render_init(){
+			render.render(scene, camera);
+		}
+		
+	</script>
+</html>

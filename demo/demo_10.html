@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<style type="text/css">
+			*{
+				margin: 0;
+				padding: 0;
+			}
+		</style>
+	</head>
+	<body>
+	</body>
+	<script src="js/jquery-1.10.2.min.js" type="text/javascript" charset="utf-8"></script>
+	<script src="js/dat.gui.js" type="text/javascript" charset="utf-8"></script>
+	<script src="js/three.js" type="text/javascript" charset="utf-8"></script>
+	<script type="text/javascript">
+		//red:x,green:y,blue:z
+		var scene,camera,renderer;
+		var gird,axis;
+		var spotLight,directionalLight;
+		var geometry,material,cube;
+		var geometry_p,materical_p,plane;
+		var x,y,z;
+		scene=new THREE.Scene();
+		camera=new THREE.PerspectiveCamera(45,window.innerWidth/window.innerHeight,1,10000);
+		camera.position.set(-400,400,300);
+		camera.lookAt(scene.position);
+		renderer=new THREE.WebGLRenderer({antialias:true});
+		renderer.setSize(window.innerWidth,window.innerHeight);
+		renderer.setClearColor(0xb6bd85);
+		renderer.shadowMap.enabled=true;
+		document.body.appendChild(renderer.domElement);
+		$("canvas").css({
+			"display":"block"
+		})
+		
+		grid_init();
+		axis_init();
+		plane_init();
+		spotLight_init();
+		render_init();
+		
+		$(window).resize(function(){
+			camera.aspect = window.innerWidth / window.innerHeight;
+			camera.updateProjectionMatrix();//保证渲染出来的图形不随着窗口比例发生形状变化,前提是必须保证实时渲染，也就是使用requestAnimationFrame
+			renderer.setSize(window.innerWidth ,window.innerHeight);
+		})
+
+		var controls=new function(){
+			this.num=1;
+			this.addcube=function(){
+				var longer=15+Math.random()*50|0;
+				geometry=new THREE.CubeGeometry(longer,longer,longer);
+				material=new THREE.MeshLambertMaterial({color:Math.random() * 0xffffff});//使用Math.random() * 0xffffff获取随机色
+				cube=new THREE.Mesh(geometry,material);
+				x=-300+Math.random()*1000|0;//-300-700
+				y=Math.random()*40|0;
+				z=-200+Math.random()*400|0;//-200-200
+				cube.position.set(x,y,z);
+				cube.castShadow=true;
+				scene.add(cube);
+			}
+		}
+		
+		var gui=new dat.GUI; 
+		gui.add(controls,"num",1,100);
+		gui.add(controls,"addcube");
+		
+		function render_init(){
+			renderer.render(scene,camera);
+			window.requestAnimationFrame(render_init);
+		}
+		
+		function grid_init(){
+			grid=new THREE.GridHelper(1000,30);
+			scene.add(grid);
+		}
+		
+		function axis_init(){
+			axis=new THREE.AxisHelper(300);
+//			axis.rotation.x=-Math.PI/2;转动坐标，貌似不影响物体的转动，即物体的转动，还是参照最初的坐标
+//			axis.rotation.y=-Math.PI/15;
+//			axis.rotation.z=Math.PI/8;
+			scene.add(axis);
+		}
+		
+		function spotLight_init(){
+			spotLight=new THREE.SpotLight(0xffffff,1.5)
+			spotLight.position.set(-600,400,200);
+			spotLight.castShadow=true;
+			scene.add(spotLight);
+		}
+		
+		function plane_init(){
+			geometry_p=new THREE.PlaneGeometry(1000,400);
+			materical_p=new THREE.MeshLambertMaterial({color:0xffffff});
+			plane=new THREE.Mesh(geometry_p,materical_p);
+			plane.position.set(200,0,0);
+			plane.rotation.x=-Math.PI/2;
+			//.rotation.y=-Math.PI/15;
+			//plane.rotation.z=Math.PI/8;
+			plane.receiveShadow=true;
+			scene.add(plane);
+		}
+	</script>
+</html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<style type="text/css">
+			*{
+				margin: 0;
+				padding: 0;
+			}
+		</style>
+	</head>
+	<body>
+	</body>
+	<script src="js/jquery-1.10.2.min.js" type="text/javascript" charset="utf-8"></script>
+	<script src="js/three.js" type="text/javascript" charset="utf-8"></script>
+	<script type="text/javascript">
+		var cube,light;
+		var scene=new THREE.Scene();//创建场景
+		var camera=new THREE.PerspectiveCamera(45,$(window).width()/$(window).height(),1,10000)//创建远景相机
+			camera.position.z=500;//相机Z轴位置
+		var renderer=new THREE.WebGLRenderer();//创建胶卷，相当于创建canvas标签
+		document.body.appendChild(renderer.domElement);
+		renderer.setSize($(window).width(),$(window).height());
+		$("canvas").css({//去除inline存在的空隙
+			"display":"block"
+		})
+		
+		light_init();
+		obj_init();
+		render_init();
+		
+		function light_init(){
+			light = new THREE.DirectionalLight( 0xffffff );
+			light.position.set( 0, 0, 1 ).normalize();
+			scene.add( light );
+		}
+		
+		function obj_init(){//创建物体
+			var geometry=new THREE.CubeGeometry(150,150,150)//创建立方体模型
+			var texture = THREE.ImageUtils.loadTexture("img/0.png", {}, function(){}); // 载入单个贴图（建议贴图的长宽为256的倍数）
+			var material=new THREE.MeshBasicMaterial({map:texture})//创建渲染材料（贴图），立方体渲染时的颜色
+			cube=new THREE.Mesh(geometry,material)//创建实体（模型和贴图结合）
+			scene.add(cube)//把实体放到场景中，注意，此时实体的坐标在相机坐标原点。
+		}
+		
+		function render_init(){//渲染出实体，即拍照，把实体输出到浏览器屏幕
+			cube.rotation.x+=.01;
+			cube.rotation.y+=.01;
+			renderer.render(scene,camera);
+			window.requestAnimationFrame(render_init);
+		}
+	</script>
+</html>

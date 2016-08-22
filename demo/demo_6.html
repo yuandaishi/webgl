@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<style type="text/css">
+			*{
+				margin: 0;
+				padding: 0;
+			}
+		</style>
+	</head>
+	<body>
+	</body>
+	<script src="js/jquery-1.10.2.min.js" type="text/javascript" charset="utf-8"></script>
+	<script src="js/three.js" type="text/javascript" charset="utf-8"></script>
+	<script type="text/javascript">
+		var scene,camera,renderer;
+		var cube,gemotery,material,cube2,gemotery2,material2;
+		var light;
+		var helper_line;
+		var axis;
+		scene=new THREE.Scene();
+		camera=new THREE.PerspectiveCamera(75,$(window).width()/$(window).height(),1,10000);
+		camera.position.x = 0;
+        camera.position.y = 200;
+        camera.position.z = 600;
+		renderer=new THREE.WebGLRenderer({antialias:true});//开启反锯齿
+		renderer.setSize($(window).width(),$(window).height());	
+		renderer.shadowMapEnabled = true;//开启阴影
+		
+		document.body.appendChild(renderer.domElement);
+		$("canvas").css({
+			"display":"block"
+		})
+		renderer.setClearColor(0xffffee,1.0);//设置canvas背景色
+		
+		obj_init();
+		light_init();
+		helper_line_init();	
+		render_init();
+		
+		function obj_init(){
+			gemotery=new THREE.CubeGeometry(150,150,150);
+			material=new THREE.MeshLambertMaterial();
+			cube=new THREE.Mesh(gemotery,material);
+			cube.castShadow=true;
+			
+			gemotery2=new THREE.SphereGeometry(300,30,30);//后面两个数字，越大，则圆越圆
+			material2=new THREE.MeshBasicMaterial({color: 0x7777ff, wireframe: true});//wireframe线框属性
+			cube2=new THREE.Mesh(gemotery2,material2);
+			cube2.castShadow=true;
+			
+			scene.add(cube);
+			scene.add(cube2);
+		}
+
+		function render_init(){
+			cube.rotation.x+=10;
+			cube.rotation.y+=10;
+			//cube.position.y+=100;
+			
+			cube2.rotation.x+=10;
+			//cube2.position.y+=100;
+			cube2.position.x+=500;
+			cube2.position.z-=200;
+			
+			renderer.render(scene,camera);
+		}
+		
+		function light_init(){
+			light=new THREE.DirectionalLight(0xff0000,1.0);
+			light.position.z=500;
+			light.castShadow = true;
+			scene.add(light);//光源创建之后，要添加
+		}
+		
+		function helper_line_init(){//创建网格
+			helper_line=new THREE.GridHelper(3000,100);
+			helper_line.rotation.x+=10;
+			helper_line.setColors(0xff00ff);
+			helper_line.receiveShadow=true;
+			scene.add(helper_line);
+		}
+	</script>
+</html>

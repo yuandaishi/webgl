@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<style type="text/css">
+			*{
+				margin: 0;
+				padding: 0;
+			}
+		</style>
+	</head>
+	<body>
+	</body>
+	<script src="js/jquery-1.10.2.min.js" type="text/javascript" charset="utf-8"></script>
+	<script src="js/three.js" type="text/javascript" charset="utf-8"></script>
+	<script type="text/javascript">
+		//Three.js中的场景是一个物体的容器，开发者可以将需要的角色放入场景中，例如苹果，葡萄。同时，角色自身也管理着其在场景中的位置。
+		//相机的作用就是面对场景，在场景中取一个合适的景，把它拍下来。
+		//渲染器的作用就是将相机拍摄下来的图片，放到浏览器中去显示。他们三者的关系如下图所示：
+	
+		//创建场景，画布，渲染器
+		var scene = new THREE.Scene();//创建场景
+		var camera = new THREE.PerspectiveCamera(75, $(window).width()/$(window).height(), 0.1, 1000)//创建相机	
+		var render = new THREE.WebGLRenderer()//创建渲染器
+		render.setSize($(window).width(),$(window).height());//设置canvas标签的宽高
+		document.body.appendChild(render.domElement)//渲染器renderer的domElement元素，表示渲染器中的画布，所有的渲染都是画在domElement上的(其实就是创建canvas标签)
+		$("canvas").css({//取出内敛元素的空隙，消除滚动条
+			"display":"block"
+		})
+		//往场景中添加元素
+		var geometry=new THREE.CubeGeometry(1,1,1);//创建几何体
+		var material = new THREE.MeshBasicMaterial({color: 0x00ff00});//不懂是什么
+		var cube=new THREE.Mesh(geometry, material);//创建物体
+		camera.position.z = 2;//好像是控制物体和眼睛之间的距离
+		scene.add(cube);//把物体添加到场景中
+		//render.render(scene, camera);//进行渲染，即把生成有物体的场景，渲染到浏览器上
+		function render_init(){
+			cube.rotation.x+=.05;
+			//cube.rotation.y+=.01;
+			//cube.rotation.z+=5;
+			render.render(scene, camera)
+			window.requestAnimationFrame(render_init);
+		}
+		
+		render_init();
+	</script>
+</html>

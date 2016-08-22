@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<style type="text/css">
+			*{
+				margin: 0;
+				padding: 0;
+			}
+		</style>
+	</head>
+	<body>
+	</body>
+	<script src="js/jquery-1.10.2.min.js" type="text/javascript" charset="utf-8"></script>
+	<script src="js/three.js" type="text/javascript" charset="utf-8"></script>
+	<script src="js/dat.gui.js" type="text/javascript" charset="utf-8"></script>
+	<script type="text/javascript">
+		//实例three.js之后，场景坐标原点和相机坐标原点重合，场景无限大
+		//物体添加进场景时，轴心处于three.js的坐标原点，此时相机也处于坐标原点，所以对于立方体来说，会有一部分相机拍摄不到，所以渲染的时候，会有一部分渲染不出来
+		//因此，一般相机都要往后移动一段距离，保证能拍摄到全景。或者场景往前移动也可以
+		
+		//创建时，最好把坐标给显示出来，能够有一个很好的参照
+		var scene,camera,renderer;
+		var geometry,material,material_1,cube_1,cube,spher,material_2,cube_2;
+		var plane;
+		var step=0;
+		var step_1=0;
+		scene=new THREE.Scene();//应该是无限大的
+		camera=new THREE.PerspectiveCamera(45,$(window).width()/$(window).height(),1,10000);
+		camera.position.z=250;
+	   	camera.position.y = 300;
+	   	camera.position.x=-400;
+	   	camera.lookAt({x:0, y:0, z:0});//和camera.lookAt(scene.position)一样，应该和镜头方向指向坐标系原点.即视线指向坐标原点，而不是屏幕正前方
+	   	//camera.lookAt(scene.position);//方法用来旋转相机对象,并将对象面对空间中的点(参数vector)----好像是把胶片的位置，即渲染出来的图像，渲染在屏幕中心（比如说设置camera.position.y = 100之后，相机从上往下拍照，拍照出来，如果不设置这个属性，则图像渲染时往下移动100px，设置了这个属性之后，图片位置保持不变）
+		renderer=new THREE.WebGLRenderer({antialias:true});
+		renderer.setSize($(window).width(),$(window).height());
+		renderer.shadowMap.enabled=true;
+		//renderer.shadowMapEnabled = true;
+		document.body.appendChild(renderer.domElement);
+		renderer.setClearColor(0xffffee,1.0)
+		$("canvas").css({
+			"display":"block"
+		})
+		
+		
+		var controls = new function () {//控制器
+            this.rotationSpeed = 0.02;
+            this.bouncingSpeed = 0.03;
+        };
+
+        var gui = new dat.GUI();
+        gui.add(controls, 'rotationSpeed', 0, 0.5);
+        gui.add(controls, 'bouncingSpeed', 0, 0.5);
+		
+		obj_init();
+		light_init();
+		axis_init();
+		render_init();
+		
+		function obj_init(){
+			geometry=new THREE.CubeGeometry(50,50,50);//创建几何体
+			material=new THREE.MeshLambertMaterial({color:0xff00de});//创建渲染材质
+			cube=new THREE.Mesh(geometry,material);
+			cube.position.y+=40;
+			cube.position.x-=100;
+			cube.castShadow=true;
+			scene.add(cube);
+			
+			plane=new THREE.PlaneGeometry(700,180);
+			material_1=new THREE.MeshLambertMaterial({color: 0xffffff});
+			cube_1=new THREE.Mesh(plane,material_1);
+			cube.receiveShadow=true;
+			cube_1.position.x=130;
+			cube_1.rotation.x=-0.5*Math.PI;//弧度，往外为正方向。绕自身轴心旋转，此时垂直平面
+			scene.add(cube_1);
+			
+			spher=new THREE.SphereGeometry(40,30,30);
+			material_2=new THREE.MeshLambertMaterial({color:0xfcff00});
+			cube_2=new THREE.Mesh(spher,material_2);
+			cube_2.position.y+=20;
+			cube_2.position.x+=100;
+			cube_2.castShadow=true;
+			scene.add(cube_2);
+			
+		}
+		
+		function light_init(){
+			light=new THREE.SpotLight(0xffffff,1.5);//1.5表示光照强度
+			light.position.x=100;
+			light.position.y=400;
+			light.position.z=400;
+			//light.position.z=20;//光源物体重合时，将照射不到物体
+			light.castShadow=true;
+			scene.add(light);
+		}
+		
+		function render_init(){
+			step_1=controls.rotationSpeed;
+			cube.rotation.y+=step_1;
+			cube.rotation.x+=step_1;
+			step += controls.bouncingSpeed;;
+            cube_2.position.x = 180 + ( 100 * (Math.cos(step)));
+            cube_2.position.y = 20 + ( 70 * Math.abs(Math.sin(step)));
+            cube_2.position.z = 20 + ( 80 * (Math.sin(step)));
+			renderer.render(scene,camera);
+			window.requestAnimationFrame(render_init);
+		}
+		
+				
+		function axis_init(){
+			axis=new THREE.AxisHelper(300);
+			scene.add(axis);
+		}
+	</script>
+</html>

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<style type="text/css">
+			*{
+				margin: 0;
+				padding: 0;
+			}
+		</style>
+	</head>
+	<body>
+		
+	</body>
+	<script src="js/jquery-1.10.2.min.js" type="text/javascript" charset="utf-8"></script>
+	<script src="js/three.js" type="text/javascript" charset="utf-8"></script>
+	<script type="text/javascript">
+		var scene=new THREE.Scene();
+		var camera=new THREE.PerspectiveCamera(75,$(window).width()/$(window).height(),1,1000);
+		camera.position.z = 2;
+		var render=new THREE.WebGLRenderer();
+		//var light=new THREE.SpotLight(0xFFFFFF, 1, 0, 30, 0)
+		//var light=new THREE.PointLight(0xFFFFFF,1,0);
+		var light=new THREE.DirectionalLight( 0xFF0000, 1 );
+		light.position.set(0.5,0.5,1);
+		scene.add(light);
+		render.setSize($(window).width(),$(window).height());
+//		render.setClearColor(0xFFFFFF, 1.0);
+		document.body.appendChild(render.domElement);
+		$("canvas").css({
+			"display":'block'
+		})
+		
+		obj_init();
+		render_init();
+		
+		function obj_init(){
+			var geometry= new THREE.CubeGeometry(1,1,1);
+			var material=new THREE.MeshLambertMaterial({color:0xFFFFFF}) //使用兰伯特材质的话，如果没有光源，则看不到物体，一片黑
+				
+			//var material=new THREE.MeshBasicMaterial({color:0x00ff00});
+			cube=new THREE.Mesh(geometry,material);
+			cube.position.set(0,0,0);
+			scene.add(cube);
+			
+			cube2=new THREE.Mesh(geometry,material);
+			cube2.position.set(1.5,0,0);
+			scene.add(cube2);
+			
+			cube3=new THREE.Mesh(geometry,material);
+			cube3.position.set(0,-1.5,0);
+			scene.add(cube3);
+			
+			cube4=new THREE.Mesh(geometry,material);
+			cube4.position.set(0,1.5,0);
+			scene.add(cube4);
+		}
+		
+		function render_init(){
+			cube.rotation.x+=10;
+			cube2.rotation.x+=10;
+			cube3.rotation.x+=10;
+			cube4.rotation.x+=10;
+			render.render(scene, camera)
+		}
+	</script>
+</html>
