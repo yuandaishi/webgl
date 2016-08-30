@@ -17,6 +17,7 @@
 	<script src="js/three.js" type="text/javascript" charset="utf-8"></script>
 	<script type="text/javascript">
 		//red:x,green:y,blue:z
+		//按照先后顺序，scene.add的对象会成为scene.children的子元素。
 		var scene,camera,renderer;
 		var gird,axis;
 		var spotLight,directionalLight;
@@ -49,7 +50,7 @@
 		})
 
 		var controls=new function(){
-			this.num=1;
+			this.num=scene.children.length;
 			this.addcube=function(){
 				var longer=15+Math.random()*50|0;
 				geometry=new THREE.CubeGeometry(longer,longer,longer);
@@ -61,12 +62,22 @@
 				cube.position.set(x,y,z);
 				cube.castShadow=true;
 				scene.add(cube);
+				this.num=scene.children.length;
+			}
+			this.reduce=function(){
+//				console.log(scene.children.length);
+				var lastObject = scene.children[scene.children.length - 1];
+				if(lastObject instanceof THREE.Mesh){
+					scene.children.length=scene.children.length-1;
+				}
+				this.num=scene.children.length;
 			}
 		}
 		
 		var gui=new dat.GUI; 
-		gui.add(controls,"num",1,100);
+		gui.add(controls,"num").listen();//listen()方法应该表示监听，没有这个方法，就没有效果
 		gui.add(controls,"addcube");
+		gui.add(controls,"reduce");
 		
 		function render_init(){
 			renderer.render(scene,camera);

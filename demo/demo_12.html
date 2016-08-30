@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>物体材质统一</title>
+	</head>
+	<style type="text/css">
+		*{
+			margin: 0;
+			padding: 0;
+		}
+	</style>
+	<body>
+	</body>
+	<script src="js/jquery-1.10.2.min.js" type="text/javascript" charset="utf-8"></script>
+	<script src="js/three.js" type="text/javascript" charset="utf-8"></script>
+	<script src="js/dat.gui.js" type="text/javascript" charset="utf-8"></script>
+	<script type="text/javascript">
+		var scene,camera,renderer;
+		var grid,axis,light;
+		var x,y,z
+		scene=new THREE.Scene();
+		//scene.fog = new THREE.Fog(0xffffff, 1, 1000);//1和1000表示在camera的哪个范围内设置迷雾，一般设置为camera的near和far即可
+		scene.overrideMaterial = new THREE.MeshLambertMaterial({color: 0xffffff});//用来设置所有物体的材质>意思是所有添加到场景中的物体都使用一样的材质
+		camera=new THREE.PerspectiveCamera(75,window.innerWidth/innerHeight,1,1000);
+		camera.position.z=100;
+		camera.position.y=200;
+		camera.position.x=-200;
+		camera.lookAt(scene.position);
+		renderer=new THREE.WebGLRenderer({antialias:true});
+		renderer.setSize(window.innerWidth,window.innerHeight);
+		renderer.setClearColor(0xb6bd85);
+		renderer.shadowMap.enabled=true;
+		document.body.appendChild(renderer.domElement);
+		$("canvas").css({
+			"display":"block"
+		})
+	
+		grid_init();
+		axis_init();
+		plane_init();
+		light_init();
+		//light_init_2();
+		render_init();
+		
+		
+		function render_init(){
+			renderer.render(scene,camera);
+			window.requestAnimationFrame(render_init);
+		}
+		
+		function grid_init(){
+			grid=new THREE.GridHelper(5000,30);
+			scene.add(grid);
+		}
+		function axis_init(){
+			axis=new THREE.AxisHelper(100);
+			scene.add(axis);
+		}
+		
+		function light_init(){
+			light=new THREE.SpotLight(0xffffff,1.5);
+			light.position.set(-400,500,200);
+			light.castShadow=true;
+			scene.add(light);
+		}
+		
+		function light_init_2(){
+			ambientLight = new THREE.AmbientLight(0x0c0c0c);
+       		scene.add(ambientLight);
+		}
+		
+		function plane_init(){
+			geometry_p=new THREE.PlaneGeometry(700,800);
+			material_p=new THREE.MeshLambertMaterial(0xffffff);
+			plane=new THREE.Mesh(geometry_p,material_p);
+			plane.position.set(250,0,-200);
+			plane.rotation.x=-Math.PI/2	
+			plane.receiveShadow=true;
+			scene.add(plane);
+		}
+		
+				
+		$(window).resize(function(){
+			camera.aspect=window.innerWidth/window.innerHeight;
+			camera.updateProjectionMatrix();//保证渲染出来的图形不随着窗口比例发生形状变化,前提是必须保证实时渲染，也就是使用requestAnimationFrame
+			renderer.setSize(window.innerWidth,window.innerHeight);
+		})
+		
+		var controls=new function(){
+				this.addcube=function(){
+					length_c=10+Math.random()*50|0;
+					con=Math.random()*2|0;
+					if(con){
+						geometry_c=new THREE.CubeGeometry(length_c,length_c,length_c);
+					}else{
+						geometry_c=new THREE.SphereGeometry(length_c,50,50);//网格设置的越大，浏览器渲染时消耗的性能越大，取50时基本能满足视觉要求
+					}
+					material_c=new THREE.MeshLambertMaterial({color:Math.random()*0xffffff});
+					cube=new THREE.Mesh(geometry_c,material_c);
+					x=-100+Math.random()*700|0//-100至600
+					y=10+Math.random()*50|0;
+					z=-600+Math.random()*800|0;
+					cube.position.set(x,y,z);
+					cube.castShadow=true;
+					scene.add(cube);
+					this.num=scene.children.length-4;
+				}
+				this.reducecube=function(){
+					var lastchildren=scene.children[scene.children.length-1];
+					if(lastchildren instanceof THREE.Mesh){
+						scene.children.length=scene.children.length-1;
+					}
+					this.num=scene.children.length-4;
+				}
+				this.num=scene.children.length-4;
+		}
+		var gui=new dat.GUI;
+		gui.add(controls,"addcube");
+		gui.add(controls,"reducecube");
+		gui.add(controls,"num").listen();
+	</script>
+</html>

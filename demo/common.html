@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<style type="text/css">
+			*{
+				margin: 0;
+				padding: 0;
+			}
+		</style>
+	</head>
+	<body>
+	</body>
+	<script src="js/jquery-1.10.2.min.js" type="text/javascript" charset="utf-8"></script>
+	<script src="js/three.js" type="text/javascript" charset="utf-8"></script>
+	<script src="js/dat.gui.js" type="text/javascript" charset="utf-8"></script>
+	<script type="text/javascript">
+		scene=new THREE.Scene();
+		camera=new THREE.PerspectiveCamera(75,window.innerWidth/window.innerHeight,1,10000);
+		camera.position.x=-400;
+		camera.position.z=400;
+		camera.position.y=400;	
+		camera.lookAt(scene.position);
+		renderer=new THREE.WebGLRenderer({antialias:true});
+		renderer.setClearColor(0xb6bd85);
+		renderer.shadowMap.enabled=true;
+		renderer.setSize(window.innerWidth,window.innerHeight);
+		document.body.appendChild(renderer.domElement);
+		$("canvas").css({
+			"display":"block"
+		})
+		
+		light_init();
+		grid_init();
+		palne_init();
+		axis_init();
+		render_init();
+		
+		function render_init(){
+			renderer.render(scene,camera);
+			window.requestAnimationFrame(render_init);
+		}
+		function light_init(){
+			light=new THREE.SpotLight(0xffffff,1.5);//聚光灯
+			light_1=new THREE.AmbientLight(0xffffff,0.5);//环境光
+			light.castShadow=true;
+			scene.add(light);
+			scene.add(light_1);
+		}
+		function grid_init(){
+			grid=new THREE.GridHelper(10000,50);
+			scene.add(grid);
+		}
+		function axis_init(){
+			axis=new THREE.AxisHelper(250);
+			scene.add(axis);
+		}
+		function palne_init(){
+			geometry_p=new THREE.PlaneGeometry(2000,1000);
+			material_p=new THREE.MeshLambertMaterial(0xffffff);
+			plane_obj=new THREE.Mesh(geometry_p,material_p);
+			plane_obj.rotation.x=-Math.PI/2;
+			plane_obj.position.x=700;
+			plane_obj.position.z=-200;
+			plane_obj.receiveShadow=true;
+			scene.add(plane_obj);
+		}
+		
+		
+		var controls=new function(){
+			this.add=function(){
+				
+			};
+			this.num=1;
+		}
+		gui=new dat.GUI();
+		gui.add(controls,"add");
+		gui.add(controls,"num",1,100);
+		$(window).resize(function(){
+			camera.aspect=window.innerWidth/innerHeight;
+			camera.updateProjectionMatrix();
+			renderer.setSize(window.innerWidth,window.innerHeight);
+		})
+	</script>
+</html>

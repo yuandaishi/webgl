@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>各种形状的几何图形，同时渲染多种材质</title>
+		<style type="text/css">
+			*{
+				margin: 0;
+				padding: 0;
+			}
+		</style>
+	</head>
+	<body>
+	</body>
+	<script src="js/jquery-1.10.2.min.js" type="text/javascript" charset="utf-8"></script>
+	<script src="js/three.js" type="text/javascript" charset="utf-8"></script>
+	<script type="text/javascript" src="js/ConvexGeometry.js"></script>
+	<script src="js/dat.gui.js" type="text/javascript" charset="utf-8"></script>
+	<script type="text/javascript">
+		//THREE.SceneUtils.createMultiMaterialObject
+		scene=new THREE.Scene();
+		camera=new THREE.PerspectiveCamera(75,window.innerWidth/window.innerHeight,1,10000);
+		camera.position.x=-400;
+		camera.position.z=400;
+		camera.position.y=400;	
+		x_spacing=150;//x轴排列间距
+		z_spacing=250;//z轴排列间距
+		j=0;
+		k=0;
+		camera.lookAt(scene.position);
+		renderer=new THREE.WebGLRenderer({antialias:true});
+		renderer.setClearColor(0xb6bd85);
+		renderer.shadowMap.enabled=true;
+		renderer.setSize(window.innerWidth,window.innerHeight);
+		document.body.appendChild(renderer.domElement);
+		$("canvas").css({
+			"display":"block"
+		})
+		
+		light_init();
+		grid_init();
+		palne_init();
+		axis_init();
+		geometry_init();
+		mesh_init();
+		render_init();
+		
+		function render_init(){
+			renderer.render(scene,camera);
+			window.requestAnimationFrame(render_init);
+		}
+		function light_init(){
+			light=new THREE.SpotLight(0xffffff,1.5);//聚光灯
+			light_1=new THREE.AmbientLight(0x090909,0.05);//环境光基本是黑色的，如果是白光的，则没有阴影
+			light.position.x=-800;
+			light.position.z=1200;
+			light.position.y=800;	
+			light.castShadow=true;
+			scene.add(light);
+			scene.add(light_1);
+		}
+		function grid_init(){
+			grid=new THREE.GridHelper(10000,50);
+			scene.add(grid);
+		}
+		function axis_init(){
+			axis=new THREE.AxisHelper(250);
+			scene.add(axis);
+		}
+		function palne_init(){
+			geometry_p=new THREE.PlaneGeometry(2000,1000);
+			material_p=new THREE.MeshLambertMaterial(0xffffff);
+			plane_obj=new THREE.Mesh(geometry_p,material_p);
+			plane_obj.rotation.x=-Math.PI/2;
+			plane_obj.position.x=700;
+			plane_obj.position.z=-200;
+			plane_obj.receiveShadow=true;
+			scene.add(plane_obj);
+		}
+		function geometry_init(){//创建各种几何体
+			geometry_arr=[];
+			geometry_arr.push(new THREE.CubeGeometry(50,50,50));
+			geometry_arr.push(new THREE.SphereGeometry(50,50,50));
+			geometry_arr.push(new THREE.CylinderGeometry(30,70,100,50,50,false));//参数意义：顶部圆半径，地部圆半径，高度，网格参数，是否显示上下两个面
+			geometry_arr.push(new THREE.OctahedronGeometry(60,0))//正8边形，网格越大，越趋近圆形
+			geometry_arr.push(new THREE.IcosahedronGeometry(60,0))//正12边形
+			geometry_arr.push(new THREE.TorusGeometry(50,15,50,50))
+			geometry_arr.push(new THREE.TorusGeometry(50,15,50,50,Math.PI))//圆环，参数意义：圆环半径、环形管道半径（圆环半径-空心部分）、网格、圆环弧度，默认2π；
+			geometry_arr.push(new THREE.TetrahedronGeometry(60));//四面体（金字塔）
+			geometry_arr.push(new THREE.TorusKnotGeometry(40, 15, 50, 20));//后面两个参数表示网格。蛇形
+			var points = [
+                new THREE.Vector3(40, 40, 40),
+                new THREE.Vector3(40, 40, -40),
+                new THREE.Vector3(-40, 40, -40),
+              	new THREE.Vector3(-40, 40, 40),
+              	new THREE.Vector3(40, -40, 40),
+            	new THREE.Vector3(40, -40, -40),
+	            //new THREE.Vector3(-40 -40, -40),
+             	new THREE.Vector3(-40, -40, 40)
+            ];
+           	geometry_arr.push(new THREE.ConvexGeometry(points));//凸面体(通过点创造面，3个不在同一直线上的点确定一个平面)不是three.js原生的方法
+           	
+           	//不懂怎么实现的
+            var pts = [];//points array - the path profile points will be stored here
+            var detail = .1;//half-circle detail - how many angle increments will be used to generate points
+            var radius = 70;//radius for half_sphere
+            for (var angle = 0.0; angle < Math.PI/6; angle += detail)//loop from 0.0 radians to PI (0 - 180 degrees)
+                pts.push(new THREE.Vector3(Math.cos(angle) * radius, 0, Math.sin(angle) * radius));//angle/radius to x,z
+            geometry_arr.push(new THREE.LatheGeometry(pts, 0));//120表示网格。越大弧度越小，越趋近远
+	
+           	//geometry_arr.push(new THREE.ParametricGeometry(THREE.ParametricGeometries.mobius3d, 8, 100));//不是three.js里面的方法
+		}
+		function material_init(){
+			material_arr=[];
+			material_arr.push(new THREE.MeshLambertMaterial({color: Math.random() * 0xffffff, shading: THREE.FlatShading}));//多个材质渲染，需要加shading这个参数(着色方式)
+			material_arr.push(new THREE.MeshBasicMaterial({color: 0x000000, wireframe: true}));
+		}
+		function mesh_init(){//开始渲染
+			for(var i=0;i<geometry_arr.length;i++){
+				material_init();
+				var mesh = THREE.SceneUtils.createMultiMaterialObject(geometry_arr[i], material_arr);//多个材质的渲染方法
+                mesh.traverse(function (e) {
+                    e.castShadow = true
+                });
+                if(i%5==0){
+                	j+=1;
+                	k=-2;
+                	k+=j;
+                }
+                mesh.position.x=-200+k*x_spacing;
+                k+=1;
+                mesh.position.z=-500+j*z_spacing;
+                mesh.position.y=100;
+                scene.add(mesh);
+			}
+		}
+		var controls=new function(){
+			this.add=function(){
+				
+			};
+			this.num=1;
+		}
+		gui=new dat.GUI();
+		gui.add(controls,"add");
+		gui.add(controls,"num",1,100);
+		
+		$(window).resize(function(){
+			camera.aspect=window.innerWidth/innerHeight;
+			camera.updateProjectionMatrix();
+			renderer.setSize(window.innerWidth,window.innerHeight);
+		})
+	</script>
+</html>
